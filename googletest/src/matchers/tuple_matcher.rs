@@ -40,7 +40,7 @@ pub mod internal {
 
     // This implementation is provided for completeness, but is completely trivial.
     // The only actual value which can be supplied is (), which must match.
-    impl Matcher for () {
+    impl<'a> Matcher<'a> for () {
         type ActualT = ();
 
         fn matches(&self, _: &Self::ActualT) -> MatcherResult {
@@ -61,8 +61,8 @@ pub mod internal {
     #[doc(hidden)]
     macro_rules! tuple_matcher_n {
         ($([$field_number:tt, $matcher_type:ident, $field_type:ident]),*) => {
-            impl<$($field_type: Debug, $matcher_type: Matcher<ActualT = $field_type>),*>
-                Matcher for ($($matcher_type,)*)
+            impl<'a, $($field_type: Debug + 'a, $matcher_type: Matcher<'a, ActualT = $field_type>),*>
+                Matcher<'a> for ($($matcher_type,)*)
             {
                 type ActualT = ($($field_type,)*);
 

@@ -40,19 +40,23 @@ use std::{fmt::Debug, marker::PhantomData};
 /// # should_fail_1().unwrap_err();
 /// # should_fail_2().unwrap_err();
 /// ```
-pub fn contains<T, InnerMatcherT>(inner: InnerMatcherT) -> ContainsMatcher<T, InnerMatcherT> {
-    ContainsMatcher { inner, count: None, phantom: Default::default() }
+pub fn contains<T, InnerMatcherT>(
+    inner: InnerMatcherT,
+) -> ContainsMatcher<T, InnerMatcherT, NoCountMatcher> {
+    ContainsMatcher { inner, count: NoCountMatcher, phantom: Default::default() }
 }
+
+struct NoCountMatcher;
 
 /// A matcher which matches a container containing one or more elements a given
 /// inner [`Matcher`] matches.
-pub struct ContainsMatcher<T, InnerMatcherT> {
+pub struct ContainsMatcher<T, InnerMatcherT, CountMatcher> {
     inner: InnerMatcherT,
-    count: Option<Box<dyn Matcher<ActualT = usize>>>,
+    count: CountMatcher,
     phantom: PhantomData<T>,
 }
 
-impl<T, InnerMatcherT> ContainsMatcher<T, InnerMatcherT> {
+impl<T, InnerMatcherT> ContainsMatcher<T, InnerMatcherT, NoCountMatcher> {
     /// Configures this instance to match containers which contain a number of
     /// matching items matched by `count`.
     ///
@@ -65,9 +69,11 @@ impl<T, InnerMatcherT> ContainsMatcher<T, InnerMatcherT> {
     ///
     /// One can also use `times(eq(0))` to test for the *absence* of an item
     /// matching the expected value.
-    pub fn times(mut self, count: impl Matcher<ActualT = usize> + 'static) -> Self {
-        self.count = Some(Box::new(count));
-        self
+    pub fn times<CountMatcher>(
+        self,
+        count: CountMatcher,
+    ) -> ContainsMatcher<T, InnerMatcherT, CountMatcher> {
+        ContainsMatcher { inner: self.inner, count, phantom: self.phantom }
     }
 }
 
@@ -81,63 +87,94 @@ impl<T, InnerMatcherT> ContainsMatcher<T, InnerMatcherT> {
 //  because val is dropped before matcher but the trait bound requires that
 //  the argument to matches outlive the matcher. It works fine if one defines
 //  val before matcher.
-impl<T: Debug, InnerMatcherT: Matcher<ActualT = T>, ContainerT: Debug> Matcher
-    for ContainsMatcher<ContainerT, InnerMatcherT>
+impl<'a, T: Debug + 'a, InnerMatcherT: Matcher<'a, ActualT = T>, ContainerT: Debug + 'a>
+    Matcher<'a> for ContainsMatcher<ContainerT, InnerMatcherT, NoCountMatcher>
 where
-    for<'a> &'a ContainerT: IntoIterator<Item = &'a T>,
+    for<'b> &'b ContainerT: IntoIterator<Item = &'b T>,
 {
     type ActualT = ContainerT;
 
-    fn matches(&self, actual: &Self::ActualT) -> MatcherResult {
-        if let Some(count) = &self.count {
-            count.matches(&self.count_matches(actual))
-        } else {
+    fn matches(&self, actual: &'a Self::ActualT) -> MatcherResult {
+
             for v in actual.into_iter() {
                 if self.inner.matches(v).into() {
                     return MatcherResult::Match;
                 }
             }
             MatcherResult::NoMatch
-        }
     }
 
-    fn explain_match(&self, actual: &Self::ActualT) -> String {
+    fn explain_match(&self, actual: &'a Self::ActualT) -> String {
         let count = self.count_matches(actual);
         match (count, &self.count) {
-            (_, Some(_)) => format!("which contains {} matching elements", count),
-            (0, None) => "which does not contain a matching element".to_string(),
-            (_, None) => "which contains a matching element".to_string(),
+            (0, _) => "which does not contain a matching element".to_string(),
+            (_, _) => "which contains a matching element".to_string(),
         }
     }
 
     fn describe(&self, matcher_result: MatcherResult) -> String {
         match (matcher_result, &self.count) {
-            (MatcherResult::Match, Some(count)) => format!(
-                "contains n elements which {}\n  where n {}",
-                self.inner.describe(MatcherResult::Match),
-                count.describe(MatcherResult::Match)
-            ),
-            (MatcherResult::NoMatch, Some(count)) => format!(
-                "doesn't contain n elements which {}\n  where n {}",
-                self.inner.describe(MatcherResult::Match),
-                count.describe(MatcherResult::Match)
-            ),
-            (MatcherResult::Match, None) => format!(
+
+            (MatcherResult::Match, _) => format!(
                 "contains at least one element which {}",
                 self.inner.describe(MatcherResult::Match)
             ),
-            (MatcherResult::NoMatch, None) => {
+            (MatcherResult::NoMatch, _) => {
                 format!("contains no element which {}", self.inner.describe(MatcherResult::Match))
             }
         }
     }
 }
 
-impl<ActualT, InnerMatcherT> ContainsMatcher<ActualT, InnerMatcherT> {
-    fn count_matches<T: Debug, ContainerT>(&self, actual: &ContainerT) -> usize
+impl<'a, T: Debug + 'a, InnerMatcherT: Matcher<'a, ActualT = T>, ContainerT: Debug + 'a, CountMatcher>
+    Matcher<'a> for ContainsMatcher<ContainerT, InnerMatcherT, CountMatcher>
+where
+    for<'b> &'b ContainerT: IntoIterator<Item = &'b T>,
+    for<'c> CountMatcher: Matcher<'c, ActualT = usize>
+{
+    type ActualT = ContainerT;
+
+    fn matches(&self, actual: &'a Self::ActualT) -> MatcherResult {
+            self.count.matches(&self.count_matches(actual))
+    }
+
+    fn explain_match(&self, actual: &'a Self::ActualT) -> String {
+        let count = self.count_matches(actual);
+        format!("which contains {} matching elements", count)
+       
+    }
+
+    fn describe(&self, matcher_result: MatcherResult) -> String {
+        match (matcher_result, &self.count) {
+            (MatcherResult::Match, count) => format!(
+                "contains n elements which {}\n  where n {}",
+                self.inner.describe(MatcherResult::Match),
+                count.describe(MatcherResult::Match)
+            ),
+            (MatcherResult::NoMatch, count) => format!(
+                "doesn't contain n elements which {}\n  where n {}",
+                self.inner.describe(MatcherResult::Match),
+                count.describe(MatcherResult::Match)
+            ),
+        }
+    }
+
+    fn and<Right: Matcher<'a, ActualT = Self::ActualT>>(
+        self,
+        right: Right,
+    ) -> crate::prelude::__internal_unstable_do_not_depend_on_these::ConjunctionMatcher<Self, Right>
+    where
+        Self: Sized,
+    {
+        crate::prelude::__internal_unstable_do_not_depend_on_these::ConjunctionMatcher::new(self, right)
+    }
+}
+
+impl<'a, ActualT, InnerMatcherT, CountMatcher> ContainsMatcher<ActualT, InnerMatcherT, CountMatcher> {
+    fn count_matches<T: Debug + 'a, ContainerT: 'a>(&self, actual: &'a ContainerT) -> usize
     where
         for<'b> &'b ContainerT: IntoIterator<Item = &'b T>,
-        InnerMatcherT: Matcher<ActualT = T>,
+        InnerMatcherT: Matcher<'a, ActualT = T>,
     {
         let mut count = 0;
         for v in actual.into_iter() {
@@ -229,7 +266,7 @@ mod tests {
 
     #[test]
     fn contains_formats_without_multiplicity_by_default() -> Result<()> {
-        let matcher: ContainsMatcher<Vec<i32>, _> = contains(eq(1));
+        let matcher: ContainsMatcher<Vec<i32>, _, _> = contains(eq(1));
 
         verify_that!(
             Matcher::describe(&matcher, MatcherResult::Match),
@@ -239,7 +276,7 @@ mod tests {
 
     #[test]
     fn contains_formats_with_multiplicity_when_specified() -> Result<()> {
-        let matcher: ContainsMatcher<Vec<i32>, _> = contains(eq(1)).times(eq(2));
+        let matcher: ContainsMatcher<Vec<i32>, _, _> = contains(eq(1)).times(eq(2));
 
         verify_that!(
             Matcher::describe(&matcher, MatcherResult::Match),

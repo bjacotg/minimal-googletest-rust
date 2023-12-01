@@ -31,13 +31,13 @@ use std::ops::Deref;
 /// # }
 /// # should_pass().unwrap();
 /// ```
-pub fn points_to<ExpectedT, MatcherT, ActualT>(
+pub fn points_to<'inner, 'outer: 'inner, ExpectedT, MatcherT, ActualT>(
     expected: MatcherT,
-) -> impl Matcher<ActualT = ActualT>
+) -> impl Matcher<'outer, ActualT = ActualT>
 where
-    ExpectedT: Debug,
-    MatcherT: Matcher<ActualT = ExpectedT>,
-    ActualT: Deref<Target = ExpectedT> + Debug + ?Sized,
+    ExpectedT: Debug + 'inner,
+    MatcherT: Matcher<'inner, ActualT = ExpectedT>,
+    ActualT: Deref<Target = ExpectedT> + Debug + ?Sized + 'outer,
 {
     PointsToMatcher { expected, phantom: Default::default() }
 }
@@ -47,19 +47,19 @@ struct PointsToMatcher<ActualT: ?Sized, MatcherT> {
     phantom: PhantomData<ActualT>,
 }
 
-impl<ExpectedT, MatcherT, ActualT> Matcher for PointsToMatcher<ActualT, MatcherT>
+impl<'inner, 'outer: 'inner, ExpectedT, MatcherT, ActualT> Matcher<'outer> for PointsToMatcher<ActualT, MatcherT>
 where
-    ExpectedT: Debug,
-    MatcherT: Matcher<ActualT = ExpectedT>,
-    ActualT: Deref<Target = ExpectedT> + Debug + ?Sized,
+    ExpectedT: Debug + 'inner,
+    MatcherT: Matcher<'inner, ActualT = ExpectedT>,
+    ActualT: Deref<Target = ExpectedT> + Debug + ?Sized + 'outer,
 {
     type ActualT = ActualT;
 
-    fn matches(&self, actual: &ActualT) -> MatcherResult {
+    fn matches(&self, actual: &'outer ActualT) -> MatcherResult {
         self.expected.matches(actual.deref())
     }
 
-    fn explain_match(&self, actual: &ActualT) -> String {
+    fn explain_match(&self, actual: &'outer ActualT) -> String {
         self.expected.explain_match(actual.deref())
     }
 

@@ -29,13 +29,13 @@ use std::{fmt::Debug, marker::PhantomData};
 /// # }
 /// # should_pass().unwrap();
 /// ```
-pub fn anything<T: Debug + ?Sized>() -> impl Matcher<ActualT = T> {
-    Anything::<T>(Default::default())
+pub fn anything<'a, T: Debug + ?Sized + 'a>() -> impl Matcher<'a, ActualT = T> {
+    Anything::<'a, T>(Default::default())
 }
 
-struct Anything<T: ?Sized>(PhantomData<T>);
+struct Anything<'a, T: ?Sized>(PhantomData<&'a T>);
 
-impl<T: Debug + ?Sized> Matcher for Anything<T> {
+impl<'a, T: Debug + ?Sized + 'a> Matcher<'a> for Anything<'a, T> {
     type ActualT = T;
 
     fn matches(&self, _: &T) -> MatcherResult {

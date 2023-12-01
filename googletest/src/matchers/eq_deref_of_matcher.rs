@@ -50,23 +50,24 @@ use std::{fmt::Debug, marker::PhantomData, ops::Deref};
 /// ```
 ///
 /// Otherwise, this has the same behaviour as [`eq`][crate::matchers::eq].
-pub fn eq_deref_of<ActualT: ?Sized, ExpectedRefT>(
+pub fn eq_deref_of<'a, ActualT: ?Sized + 'a, ExpectedRefT>(
     expected: ExpectedRefT,
-) -> EqDerefOfMatcher<ActualT, ExpectedRefT> {
+) -> EqDerefOfMatcher<'a, ActualT, ExpectedRefT> {
     EqDerefOfMatcher { expected, phantom: Default::default() }
 }
 
 /// A matcher which matches a value equal to the derefenced value of `expected`.
 ///
 /// See [`eq_deref_of`].
-pub struct EqDerefOfMatcher<ActualT: ?Sized, ExpectedRefT> {
+pub struct EqDerefOfMatcher<'a, ActualT: ?Sized, ExpectedRefT> {
     pub(crate) expected: ExpectedRefT,
-    phantom: PhantomData<ActualT>,
+    phantom: PhantomData<&'a ActualT>,
 }
 
-impl<ActualT, ExpectedRefT, ExpectedT> Matcher for EqDerefOfMatcher<ActualT, ExpectedRefT>
+impl<'a, ActualT, ExpectedRefT, ExpectedT> Matcher<'a>
+    for EqDerefOfMatcher<'a, ActualT, ExpectedRefT>
 where
-    ActualT: Debug + ?Sized,
+    ActualT: Debug + ?Sized + 'a,
     ExpectedRefT: Deref<Target = ExpectedT> + Debug,
     ExpectedT: PartialEq<ActualT> + Debug,
 {
@@ -120,7 +121,6 @@ mod tests {
         verify_that!(NonCloneNonCopyStruct(123), not(eq_deref_of(&NonCloneNonCopyStruct(234))))
     }
     #[cfg(do_not_compile)]
-
     #[test]
     fn shows_structured_diff() -> Result<()> {
         #[derive(Debug, PartialEq)]

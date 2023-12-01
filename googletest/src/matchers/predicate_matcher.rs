@@ -121,9 +121,9 @@ where
 #[doc(hidden)]
 pub struct NoDescription;
 
-impl<T: Debug, P> Matcher for PredicateMatcher<T, P, NoDescription, NoDescription>
+impl<'a, T: Debug + 'a, P> Matcher<'a> for PredicateMatcher<T, P, NoDescription, NoDescription>
 where
-    for<'a> P: Fn(&'a T) -> bool,
+    for<'b> P: Fn(&'b T) -> bool,
 {
     type ActualT = T;
 
@@ -139,10 +139,10 @@ where
     }
 }
 
-impl<T: Debug, P, D1: PredicateDescription, D2: PredicateDescription> Matcher
+impl<'a, T: Debug + 'a, P, D1: PredicateDescription, D2: PredicateDescription> Matcher<'a>
     for PredicateMatcher<T, P, D1, D2>
 where
-    for<'a> P: Fn(&'a T) -> bool,
+    for<'b> P: Fn(&'b T) -> bool,
 {
     type ActualT = T;
 
@@ -165,7 +165,7 @@ mod tests {
     use crate::prelude::*;
 
     // Simple matcher with a description
-    fn is_odd() -> impl Matcher<ActualT = i32> {
+    fn is_odd() -> impl Matcher<'static, ActualT = i32> {
         predicate(|x| x % 2 == 1).with_description("is odd", "is even")
     }
 
@@ -185,7 +185,7 @@ mod tests {
     }
 
     // Simple Matcher without description
-    fn is_even() -> impl Matcher<ActualT = i32> {
+    fn is_even() -> impl Matcher<'static, ActualT = i32> {
         predicate(|x| x % 2 == 0)
     }
 

@@ -273,7 +273,7 @@ pub trait StrMatcherConfigurator<ActualT: ?Sized, ExpectedT> {
     /// other matcher construction.
     fn times(
         self,
-        times: impl Matcher<ActualT = usize> + 'static,
+        times: impl Matcher<'static, ActualT = usize> + 'static,
     ) -> StrMatcher<ActualT, ExpectedT>;
 }
 
@@ -292,7 +292,7 @@ pub struct StrMatcher<ActualT: ?Sized, ExpectedT> {
     phantom: PhantomData<ActualT>,
 }
 
-impl<ExpectedT, ActualT> Matcher for StrMatcher<ActualT, ExpectedT>
+impl<'a, ExpectedT, ActualT> Matcher<'a> for StrMatcher< ActualT, ExpectedT>
 where
     ExpectedT: Deref<Target = str> + Debug,
     ActualT: AsRef<str> + Debug + ?Sized,
@@ -343,7 +343,7 @@ impl<ActualT: ?Sized, ExpectedT, MatcherT: Into<StrMatcher<ActualT, ExpectedT>>>
 
     fn times(
         self,
-        times: impl Matcher<ActualT = usize> + 'static,
+        times: impl Matcher<'static, ActualT = usize> + 'static,
     ) -> StrMatcher<ActualT, ExpectedT> {
         let existing = self.into();
         if !matches!(existing.configuration.mode, MatchMode::Contains) {
@@ -359,7 +359,7 @@ impl<A: ?Sized, T: Deref<Target = str>> From<EqMatcher<A, T>> for StrMatcher<A, 
     }
 }
 
-impl<A: ?Sized, T: Deref<Target = str>> From<EqDerefOfMatcher<A, T>> for StrMatcher<A, T> {
+impl<'a, A: ?Sized, T: Deref<Target = str>> From<EqDerefOfMatcher<'a, A, T>> for StrMatcher<A, T> {
     fn from(value: EqDerefOfMatcher<A, T>) -> Self {
         Self::with_default_config(value.expected)
     }
@@ -386,7 +386,7 @@ struct Configuration {
     ignore_leading_whitespace: bool,
     ignore_trailing_whitespace: bool,
     case_policy: CasePolicy,
-    times: Option<Box<dyn Matcher<ActualT = usize>>>,
+    times: Option<Box<dyn Matcher<'static, ActualT = usize>>>,
 }
 
 #[derive(Clone)]
@@ -568,7 +568,7 @@ impl Configuration {
         Self { case_policy: CasePolicy::IgnoreAscii, ..self }
     }
 
-    fn times(self, times: impl Matcher<ActualT = usize> + 'static) -> Self {
+    fn times(self, times: impl Matcher<'static, ActualT = usize> + 'static) -> Self {
         Self { times: Some(Box::new(times)), ..self }
     }
 }

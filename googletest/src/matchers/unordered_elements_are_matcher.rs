@@ -374,8 +374,8 @@ pub mod internal {
     ///
     /// **For internal use only. API stablility is not guaranteed!**
     #[doc(hidden)]
-    pub struct UnorderedElementsAreMatcher<'a, ContainerT: ?Sized, T: Debug, const N: usize> {
-        elements: [Box<dyn Matcher<ActualT = T> + 'a>; N],
+    pub struct UnorderedElementsAreMatcher<'a, ContainerT: ?Sized + 'a, T: Debug + 'a, const N: usize> {
+        elements: [Box<dyn Matcher<'a, ActualT = T> + 'a>; N],
         requirements: Requirements,
         phantom: PhantomData<ContainerT>,
     }
@@ -400,7 +400,7 @@ pub mod internal {
     // least one expected element and vice versa.
     // 3. `UnorderedElementsAreMatcher` verifies that a perfect matching exists
     // using Ford-Fulkerson.
-    impl<'a, T: Debug, ContainerT: Debug + ?Sized, const N: usize> Matcher
+    impl<'a, T: Debug + 'a, ContainerT: Debug + ?Sized + 'a, const N: usize> Matcher<'a>
         for UnorderedElementsAreMatcher<'a, ContainerT, T, N>
     where
         for<'b> &'b ContainerT: IntoIterator<Item = &'b T>,
@@ -447,7 +447,7 @@ pub mod internal {
     }
 
     type KeyValueMatcher<'a, KeyT, ValueT> =
-        (Box<dyn Matcher<ActualT = KeyT> + 'a>, Box<dyn Matcher<ActualT = ValueT> + 'a>);
+        (Box<dyn Matcher<'a, ActualT = KeyT> + 'a>, Box<dyn Matcher<'a, ActualT = ValueT> + 'a>);
 
     /// This is the analogue to [UnorderedElementsAreMatcher] for maps and
     /// map-like collections.
@@ -476,7 +476,7 @@ pub mod internal {
         }
     }
 
-    impl<'a, KeyT: Debug, ValueT: Debug, ContainerT: Debug + ?Sized, const N: usize> Matcher
+    impl<'a, KeyT: Debug, ValueT: Debug + 'a, ContainerT: Debug + ?Sized + 'a , const N: usize> Matcher<'a>
         for UnorderedElementsOfMapAreMatcher<'a, ContainerT, KeyT, ValueT, N>
     where
         for<'b> &'b ContainerT: IntoIterator<Item = (&'b KeyT, &'b ValueT)>,

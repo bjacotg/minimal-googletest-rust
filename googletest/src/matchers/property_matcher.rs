@@ -170,7 +170,7 @@ pub mod internal {
     {
         type ActualT = OuterT;
 
-        fn matches(&self, actual: &'outer OuterT) -> MatcherResult {
+        fn matches<'b>(&self, actual: &'b OuterT) -> MatcherResult  where 'outer: 'b {
             self.inner.matches(&(self.extractor)(actual))
         }
 
@@ -182,7 +182,7 @@ pub mod internal {
             )
         }
 
-        fn explain_match(&self, actual: &'outer OuterT) -> String {
+        fn explain_match<'b>(&self, actual: &'b OuterT) -> String  where 'outer: 'b {
             let actual_inner = (self.extractor)(actual);
             format!(
                 "whose property `{}` is `{:#?}`, {}",
@@ -219,7 +219,7 @@ pub mod internal {
     {
         type ActualT = OuterT;
 
-        fn matches(&self, actual: &OuterT) -> MatcherResult {
+        fn matches<'b>(&self, actual: &'b OuterT) -> MatcherResult  where 'outer: 'b {
             self.inner.matches((self.extractor)(actual))
         }
 
@@ -231,7 +231,7 @@ pub mod internal {
             )
         }
 
-        fn explain_match(&self, actual: &OuterT) -> String {
+        fn explain_match<'b>(&self, actual: &'b OuterT) -> String  where 'outer: 'b {
             let actual_inner = (self.extractor)(actual);
             format!(
                 "whose property `{}` is `{:#?}`, {}",

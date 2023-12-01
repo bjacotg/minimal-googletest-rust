@@ -40,7 +40,7 @@ impl<'a, ActualT: Debug + 'a, InnerMatcherT: Matcher<'a, ActualT = ActualT>> Mat
 {
     type ActualT = ActualT;
 
-    fn matches(&self, actual: &'a Self::ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult  where 'a: 'b {
         self.inner.matches(actual)
     }
 
@@ -59,7 +59,7 @@ impl<'a, ActualT: Debug + 'a, InnerMatcherT: Matcher<'a, ActualT = ActualT>> Mat
         }
     }
 
-    fn explain_match(&self, actual: &'a Self::ActualT) -> String {
+    fn explain_match<'b>(&self, actual: &'b Self::ActualT) -> String  where 'a: 'b {
         self.inner.explain_match(actual)
     }
 }

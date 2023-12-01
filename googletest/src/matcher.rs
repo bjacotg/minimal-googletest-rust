@@ -23,7 +23,7 @@ use std::fmt::Debug;
 /// An interface for checking an arbitrary condition on a datum.
 pub trait Matcher<'a> {
     /// The type against which this matcher matches.
-    type ActualT: Debug + ?Sized;
+    type ActualT: Debug + ?Sized + 'a;
 
     /// Returns whether the condition matches the datum `actual`.
     ///
@@ -31,7 +31,7 @@ pub trait Matcher<'a> {
     /// matching condition is based on data stored in the matcher. For example,
     /// `eq` matches when its stored expected value is equal (in the sense of
     /// the `==` operator) to the value `actual`.
-    fn matches(&self, actual: &'a Self::ActualT) -> MatcherResult;
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where 'a: 'b;
 
     /// Returns a description of `self` or a negative description if
     /// `matcher_result` is `DoesNotMatch`.
@@ -114,7 +114,7 @@ pub trait Matcher<'a> {
     /// inner matcher and appears as follows:
     ///
     /// ```ignore
-    /// fn explain_match(&self, actual: &Self::ActualT) -> String {
+    /// fn explain_match<'b: 'a>(&self, actual: &'b Self::ActualT) -> String {
     ///     self.expected.explain_match(actual.deref())
     /// }
     /// ```
@@ -128,7 +128,7 @@ pub trait Matcher<'a> {
     ///     format!("which points to a value {}", self.expected.explain_match(actual.deref()))
     /// }
     /// ```
-    fn explain_match(&self, actual: &'a Self::ActualT) -> String {
+    fn explain_match<'b>(&self, actual: &'b Self::ActualT) -> String  where 'a: 'b {
         format!("which {}", self.describe(self.matches(actual)))
     }
 
@@ -209,7 +209,7 @@ const PRETTY_PRINT_LENGTH_THRESHOLD: usize = 60;
 /// obtain `actual`.
 pub(crate) fn create_assertion_failure<'a, T: Debug + ?Sized + 'a>(
     matcher: &impl Matcher<'a, ActualT = T>,
-    actual: &'a T,
+    actual: &T,
     actual_expr: &'static str,
     source_location: SourceLocation,
 ) -> TestAssertionFailure {

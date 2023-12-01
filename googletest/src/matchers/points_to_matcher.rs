@@ -55,11 +55,11 @@ where
 {
     type ActualT = ActualT;
 
-    fn matches(&self, actual: &'outer ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b ActualT) -> MatcherResult  where 'outer: 'b {
         self.expected.matches(actual.deref())
     }
 
-    fn explain_match(&self, actual: &'outer ActualT) -> String {
+    fn explain_match<'b>(&self, actual: &'b ActualT) -> String  where 'outer: 'b {
         self.expected.explain_match(actual.deref())
     }
 

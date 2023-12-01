@@ -179,7 +179,7 @@ pub mod internal {
     {
         type ActualT = OuterT;
 
-        fn matches(&self, actual: &'outer OuterT) -> MatcherResult {
+        fn matches<'b>(&self, actual: &'b OuterT) -> MatcherResult  where 'outer: 'b {
             if let Some(value) = (self.field_accessor)(actual) {
                 self.inner.matches(value)
             } else {
@@ -187,7 +187,7 @@ pub mod internal {
             }
         }
 
-        fn explain_match(&self, actual: &'outer OuterT) -> String {
+        fn explain_match<'b>(&self, actual: &'b OuterT) -> String  where 'outer: 'b  {
             if let Some(actual) = (self.field_accessor)(actual) {
                 format!(
                     "which has field `{}`, {}",

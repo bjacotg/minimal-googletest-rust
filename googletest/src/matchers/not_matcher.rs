@@ -43,14 +43,14 @@ struct NotMatcher<InnerMatcherT> {
 impl<'a, InnerMatcherT: Matcher<'a>> Matcher<'a> for NotMatcher<InnerMatcherT> {
     type ActualT = <InnerMatcherT as Matcher<'a>>::ActualT;
 
-    fn matches(&self, actual: &'a Self::ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult  where 'a: 'b {
         match self.inner.matches(actual) {
             MatcherResult::Match => MatcherResult::NoMatch,
             MatcherResult::NoMatch => MatcherResult::Match,
         }
     }
 
-    fn explain_match(&self, actual: &'a Self::ActualT) -> String {
+    fn explain_match<'b>(&self, actual: &'b Self::ActualT) -> String  where 'a: 'b {
         self.inner.explain_match(actual)
     }
 

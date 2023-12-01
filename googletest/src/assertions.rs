@@ -420,7 +420,7 @@ pub mod internal {
     /// **For internal use only. API stablility is not guaranteed!**
     #[must_use = "The assertion result must be evaluated to affect the test result."]
     pub fn check_matcher<'a,  T: Debug + ?Sized + 'a>(
-        actual: &'a T,
+        actual: &T,
         expected: impl Matcher<'a, ActualT = T>,
         actual_expr: &'static str,
         source_location: SourceLocation,

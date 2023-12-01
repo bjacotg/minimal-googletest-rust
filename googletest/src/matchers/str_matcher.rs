@@ -295,11 +295,11 @@ pub struct StrMatcher<ActualT: ?Sized, ExpectedT> {
 impl<'a, ExpectedT, ActualT> Matcher<'a> for StrMatcher< ActualT, ExpectedT>
 where
     ExpectedT: Deref<Target = str> + Debug,
-    ActualT: AsRef<str> + Debug + ?Sized,
+    ActualT: AsRef<str> + Debug + ?Sized + 'a,
 {
     type ActualT = ActualT;
 
-    fn matches(&self, actual: &ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b ActualT) -> MatcherResult  where 'a: 'b {
         self.configuration.do_strings_match(self.expected.deref(), actual.as_ref()).into()
     }
 
@@ -307,7 +307,7 @@ where
         self.configuration.describe(matcher_result, self.expected.deref())
     }
 
-    fn explain_match(&self, actual: &ActualT) -> String {
+    fn explain_match<'b>(&self, actual: &'b ActualT) -> String  where 'a: 'b  {
         self.configuration.explain_match(self.expected.deref(), actual.as_ref())
     }
 }

@@ -39,14 +39,14 @@ where
 {
     type ActualT = M1::ActualT;
 
-    fn matches(&self, actual: &'a M1::ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b M1::ActualT) -> MatcherResult where 'a: 'b {
         match (self.m1.matches(actual), self.m2.matches(actual)) {
             (MatcherResult::Match, MatcherResult::Match) => MatcherResult::Match,
             _ => MatcherResult::NoMatch,
         }
     }
 
-    fn explain_match(&self, actual: &'a M1::ActualT) -> String {
+    fn explain_match<'b>(&self, actual: &'b M1::ActualT) -> String  where 'a: 'b {
         match (self.m1.matches(actual), self.m2.matches(actual)) {
             (MatcherResult::Match, MatcherResult::Match) => {
                 format!(

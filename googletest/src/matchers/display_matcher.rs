@@ -38,11 +38,11 @@ impl<'a, T: Debug + Display + 'a, InnerMatcher> Matcher<'a>
 {
     type ActualT = T;
 
-    fn matches(&self, actual: &T) -> MatcherResult {
+    fn matches<'b> (&self, actual: &'b T) -> MatcherResult where 'a: 'b {
         self.inner.matches(&format!("{actual}"))
     }
 
-    fn explain_match(&self, actual: &T) -> String {
+    fn explain_match<'b>(&self, actual: &'b T) -> String  where 'a: 'b {
         format!("which displays as a string {}", self.inner.explain_match(&format!("{actual}")))
     }
 

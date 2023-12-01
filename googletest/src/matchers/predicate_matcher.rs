@@ -127,7 +127,7 @@ where
 {
     type ActualT = T;
 
-    fn matches(&self, actual: &T) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b T) -> MatcherResult  where 'a: 'b {
         (self.predicate)(actual).into()
     }
 
@@ -146,7 +146,7 @@ where
 {
     type ActualT = T;
 
-    fn matches(&self, actual: &T) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b T) -> MatcherResult  where 'a: 'b {
         (self.predicate)(actual).into()
     }
 

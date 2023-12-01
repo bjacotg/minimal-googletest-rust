@@ -73,7 +73,7 @@ where
 {
     type ActualT = ActualT;
 
-    fn matches(&self, actual: &ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b ActualT) -> MatcherResult  where 'a: 'b {
         (self.expected.deref() == actual).into()
     }
 
@@ -84,7 +84,7 @@ where
         }
     }
 
-    fn explain_match(&self, actual: &ActualT) -> String {
+    fn explain_match<'b>(&self, actual: &'b ActualT) -> String  where 'a: 'b {
         format!(
             "which {}{}",
             &self.describe(self.matches(actual)),

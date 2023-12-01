@@ -87,12 +87,12 @@ pub mod internal {
         }
     }
 
-    impl<'matchers, 'actual, T: Debug + ?Sized, const N: usize> Matcher<'actual>
+    impl<'matchers, 'actual, T: Debug + ?Sized + 'actual, const N: usize> Matcher<'actual>
         for AllMatcher<'matchers, 'actual, T, N>
     {
         type ActualT = T;
 
-        fn matches(&self, actual: &'actual Self::ActualT) -> MatcherResult {
+        fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where 'actual: 'b {
             for component in &self.components {
                 match component.matches(actual) {
                     MatcherResult::NoMatch => {
@@ -104,7 +104,7 @@ pub mod internal {
             MatcherResult::Match
         }
 
-        fn explain_match(&self, actual: &'actual Self::ActualT) -> String {
+        fn explain_match<'b>(&self, actual: &'b Self::ActualT) -> String  where 'actual: 'b {
             match N {
                 0 => anything::<T>().explain_match(actual),
                 1 => self.components[0].explain_match(actual),

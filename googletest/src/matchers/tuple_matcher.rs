@@ -43,7 +43,7 @@ pub mod internal {
     impl<'a> Matcher<'a> for () {
         type ActualT = ();
 
-        fn matches(&self, _: &Self::ActualT) -> MatcherResult {
+        fn matches<'b>(&self, _: &'b Self::ActualT) -> MatcherResult  where 'a: 'b {
             MatcherResult::Match
         }
 
@@ -66,7 +66,7 @@ pub mod internal {
             {
                 type ActualT = ($($field_type,)*);
 
-                fn matches(&self, actual: &($($field_type,)*)) -> MatcherResult {
+                fn matches<'b>(&self, actual: &'b ($($field_type,)*)) -> MatcherResult  where 'a: 'b {
                     $(match self.$field_number.matches(&actual.$field_number) {
                         MatcherResult::Match => {},
                         MatcherResult::NoMatch => {
@@ -76,7 +76,7 @@ pub mod internal {
                     MatcherResult::Match
                 }
 
-                fn explain_match(&self, actual: &($($field_type,)*)) -> String {
+                fn explain_match<'b>(&self, actual: &'b ($($field_type,)*)) -> String  where 'a: 'b {
                     let mut explanation = format!("which {}", self.describe(self.matches(actual)));
                     $(match self.$field_number.matches(&actual.$field_number) {
                         MatcherResult::Match => {},

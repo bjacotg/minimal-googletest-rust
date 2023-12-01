@@ -46,7 +46,8 @@ pub fn contains<T, InnerMatcherT>(
     ContainsMatcher { inner, count: NoCountMatcher, phantom: Default::default() }
 }
 
-struct NoCountMatcher;
+// TODO maybe remove
+pub struct NoCountMatcher;
 
 /// A matcher which matches a container containing one or more elements a given
 /// inner [`Matcher`] matches.
@@ -94,7 +95,7 @@ where
 {
     type ActualT = ContainerT;
 
-    fn matches(&self, actual: &'a Self::ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where 'a: 'b  {
 
             for v in actual.into_iter() {
                 if self.inner.matches(v).into() {
@@ -104,7 +105,7 @@ where
             MatcherResult::NoMatch
     }
 
-    fn explain_match(&self, actual: &'a Self::ActualT) -> String {
+    fn explain_match<'b>(&self, actual: &'b Self::ActualT) -> String  where 'a: 'b {
         let count = self.count_matches(actual);
         match (count, &self.count) {
             (0, _) => "which does not contain a matching element".to_string(),
@@ -134,11 +135,11 @@ where
 {
     type ActualT = ContainerT;
 
-    fn matches(&self, actual: &'a Self::ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where 'a: 'b  {
             self.count.matches(&self.count_matches(actual))
     }
 
-    fn explain_match(&self, actual: &'a Self::ActualT) -> String {
+    fn explain_match<'b>(&self, actual: &'b Self::ActualT) -> String  where 'a: 'b {
         let count = self.count_matches(actual);
         format!("which contains {} matching elements", count)
        
@@ -171,7 +172,7 @@ where
 }
 
 impl<'a, ActualT, InnerMatcherT, CountMatcher> ContainsMatcher<ActualT, InnerMatcherT, CountMatcher> {
-    fn count_matches<T: Debug + 'a, ContainerT: 'a>(&self, actual: &'a ContainerT) -> usize
+    fn count_matches<T: Debug + 'a, ContainerT: 'a>(&self, actual: &ContainerT) -> usize
     where
         for<'b> &'b ContainerT: IntoIterator<Item = &'b T>,
         InnerMatcherT: Matcher<'a, ActualT = T>,

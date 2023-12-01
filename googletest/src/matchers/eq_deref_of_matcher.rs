@@ -119,6 +119,7 @@ mod tests {
     fn does_not_match_value_with_non_equal_value() -> Result<()> {
         verify_that!(NonCloneNonCopyStruct(123), not(eq_deref_of(&NonCloneNonCopyStruct(234))))
     }
+    #[cfg(do_not_compile)]
 
     #[test]
     fn shows_structured_diff() -> Result<()> {

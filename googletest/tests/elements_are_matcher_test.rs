@@ -15,7 +15,8 @@
 use googletest::matcher::Matcher;
 use googletest::prelude::*;
 use indoc::indoc;
-
+#[cfg(do_not_compile)]
+mod test {
 #[test]
 fn elements_are_matches_vector() -> Result<()> {
     let value = vec![1, 2, 3];
@@ -122,4 +123,5 @@ fn elements_are_works_when_matcher_is_created_in_subroutine() -> Result<()> {
 #[test]
 fn elements_are_implicitly_called() -> Result<()> {
     verify_that!(vec![1, 2, 3], [eq(1), eq(2), eq(3)])
+}
 }

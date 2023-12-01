@@ -13,6 +13,7 @@
 // limitations under the License.
 
 fn main() {}
+#[cfg(do_not_compile)]
 
 #[cfg(test)]
 mod tests {

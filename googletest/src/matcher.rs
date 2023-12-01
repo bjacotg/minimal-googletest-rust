@@ -17,7 +17,7 @@
 use crate::internal::source_location::SourceLocation;
 use crate::internal::test_outcome::TestAssertionFailure;
 use crate::matchers::__internal_unstable_do_not_depend_on_these::ConjunctionMatcher;
-use crate::matchers::__internal_unstable_do_not_depend_on_these::DisjunctionMatcher;
+// use crate::matchers::__internal_unstable_do_not_depend_on_these::DisjunctionMatcher;
 use std::fmt::Debug;
 
 /// An interface for checking an arbitrary condition on a datum.
@@ -184,7 +184,9 @@ pub trait Matcher {
     /// ```
     // TODO(b/264518763): Replace the return type with impl Matcher and reduce
     // visibility of DisjunctionMatcher once impl in return position in trait
-    // methods is stable.
+    // methods is stable.    
+    #[cfg(do_not_compile)]
+
     fn or<Right: Matcher<ActualT = Self::ActualT>>(
         self,
         right: Right,

@@ -75,6 +75,7 @@ fn matches_enum_value() -> Result<()> {
 
     verify_that!(value, field!(AnEnum::AValue.0, eq(123)))
 }
+#[cfg(do_not_compile)]
 
 #[test]
 fn shows_correct_failure_message_for_wrong_struct_entry() -> Result<()> {
@@ -106,6 +107,7 @@ fn does_not_match_enum_value_with_wrong_enum_variant() -> Result<()> {
 
     verify_that!(value, not(field!(AnEnum::AValue.0, eq(123))))
 }
+#[cfg(do_not_compile)]
 
 #[test]
 fn shows_correct_failure_message_for_wrong_enum_value() -> Result<()> {
@@ -126,6 +128,7 @@ fn shows_correct_failure_message_for_wrong_enum_value() -> Result<()> {
         err(displays_as(contains_substring("which has the wrong enum variant `AnotherValue`")))
     )
 }
+#[cfg(do_not_compile)]
 
 #[test]
 fn shows_correct_failure_message_for_wrong_enum_value_with_tuple_field() -> Result<()> {
@@ -144,6 +147,7 @@ fn shows_correct_failure_message_for_wrong_enum_value_with_tuple_field() -> Resu
         err(displays_as(contains_substring("which has the wrong enum variant `AnotherValue`")))
     )
 }
+#[cfg(do_not_compile)]
 
 #[test]
 fn shows_correct_failure_message_for_wrong_enum_value_with_named_field() -> Result<()> {

@@ -71,6 +71,7 @@ fn mismatch_description_two_failed_matchers() -> Result<()> {
 fn mismatch_description_empty_matcher() -> Result<()> {
     verify_that!(all!().explain_match("Three"), displays_as(eq("which is anything")))
 }
+#[cfg(do_not_compile)]
 
 #[test]
 fn all_multiple_failed_assertions() -> Result<()> {

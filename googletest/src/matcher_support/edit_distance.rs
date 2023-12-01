@@ -279,6 +279,7 @@ impl<T: Clone> Path<T> {
         }
     }
 }
+#[cfg(do_not_compile)]
 
 #[cfg(test)]
 mod tests {

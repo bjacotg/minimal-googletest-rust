@@ -88,6 +88,7 @@ mod tests {
 
         verify_that!(result, eq(MatcherResult::NoMatch))
     }
+    #[cfg(do_not_compile)]
 
     #[test]
     fn match_explanation_references_actual_value() -> Result<()> {

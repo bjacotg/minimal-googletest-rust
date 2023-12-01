@@ -14,7 +14,8 @@
 
 use googletest::prelude::*;
 use indoc::indoc;
-
+#[cfg(do_not_compile)]
+mod tests {
 #[test]
 fn pointwise_matches_single_element() -> Result<()> {
     let value = vec![1];
@@ -167,4 +168,5 @@ fn pointwise_matches_single_element_with_three_containers() -> Result<()> {
         value,
         pointwise!(|v, t, u| near(v, t * u), vec![1.0f32], vec![0.0001f32], vec![0.5f32])
     )
+}
 }

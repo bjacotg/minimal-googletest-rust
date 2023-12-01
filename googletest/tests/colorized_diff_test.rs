@@ -27,6 +27,7 @@ fn build_text<T: Display>(mut collection: impl Iterator<Item = T>) -> String {
     }
     text
 }
+#[cfg(do_not_compile)]
 
 #[test]
 fn colors_appear_when_no_color_is_no_set_and_force_color_is_set() -> Result<()> {

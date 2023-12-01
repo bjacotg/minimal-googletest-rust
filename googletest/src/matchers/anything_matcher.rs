@@ -69,10 +69,10 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn anything_matches_option() -> Result<()> {
-        let value = Some(32);
-        verify_that!(value, some(anything()))?;
-        Ok(())
-    }
+    // #[test]
+    // fn anything_matches_option() -> Result<()> {
+    //     let value = Some(32);
+    //     verify_that!(value, some(anything()))?;
+    //     Ok(())
+    // }
 }

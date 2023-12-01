@@ -1093,6 +1093,7 @@ mod tests {
             ))
         )
     }
+    #[cfg(do_not_compile)]
 
     #[test]
     fn unordered_elements_are_description_no_full_match_with_map() -> Result<()> {

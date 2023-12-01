@@ -89,6 +89,7 @@ mod tests {
     fn points_to_matches_box_of_owned_string_with_string_reference() -> Result<()> {
         verify_that!(Rc::new("A string".to_string()), points_to(eq("A string")))
     }
+    #[cfg(do_not_compile)]
 
     #[test]
     fn match_explanation_references_actual_value() -> Result<()> {

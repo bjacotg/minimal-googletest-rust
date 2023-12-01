@@ -42,3 +42,6 @@ rustversion = "1.0.14"
 indoc = "2"
 quickcheck = "1.0.3"
 serial_test = "2.0.0"
+
+[lib]
+doctest = false

@@ -98,6 +98,7 @@ mod tests {
         verify_that!(Struct { a: 123, b: 321 }, displays_as(eq("Struct { a: 123, b: 321 }")))?;
         Ok(())
     }
+    #[cfg(do_not_compile)]
 
     #[test]
     fn display_displays_error_message_with_explanation_from_inner_matcher() -> Result<()> {

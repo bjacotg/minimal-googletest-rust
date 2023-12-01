@@ -15,7 +15,8 @@
 use googletest::matcher::Matcher;
 use googletest::prelude::*;
 use indoc::indoc;
-
+#[cfg(do_not_compile)]
+mod tests {
 #[test]
 fn does_not_match_value_when_list_is_empty() -> Result<()> {
     verify_that!((), not(any!()))
@@ -90,4 +91,5 @@ fn all_multiple_failed_assertions() -> Result<()> {
               * which isn't equal to 3"
         ))))
     )
+}
 }

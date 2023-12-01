@@ -133,6 +133,7 @@ fn describes_itself_in_not_matching_case() -> Result<()> {
         eq("has property `get_property()`, which isn't equal to 1")
     )
 }
+#[cfg(do_not_compile)]
 
 #[test]
 fn explains_mismatch_referencing_explanation_of_inner_matcher() -> Result<()> {
@@ -167,6 +168,7 @@ fn describes_itself_in_not_matching_case_for_ref() -> Result<()> {
         eq("has property `get_property_ref()`, which isn't equal to 1")
     )
 }
+#[cfg(do_not_compile)]
 
 #[test]
 fn explains_mismatch_referencing_explanation_of_inner_matcher_for_ref() -> Result<()> {

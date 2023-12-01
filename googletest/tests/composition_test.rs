@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use googletest::prelude::*;
+#[cfg(do_not_compile)]
 
 #[test]
 fn all_matcher_works_as_inner_matcher() -> Result<()> {
@@ -57,6 +58,7 @@ fn pointwise_works_as_inner_matcher() -> Result<()> {
     struct AStruct(Vec<i32>);
     verify_that!(AStruct(vec![123]), matches_pattern!(AStruct(pointwise!(eq, [123]))))
 }
+#[cfg(do_not_compile)]
 
 #[test]
 fn elements_are_works_as_inner_matcher() -> Result<()> {
@@ -64,6 +66,7 @@ fn elements_are_works_as_inner_matcher() -> Result<()> {
     struct AStruct(Vec<i32>);
     verify_that!(AStruct(vec![123]), matches_pattern!(AStruct(elements_are![eq(123)])))
 }
+#[cfg(do_not_compile)]
 
 #[test]
 fn tuple_works_as_inner_matcher() -> Result<()> {

@@ -16,7 +16,7 @@
 
 use crate::internal::source_location::SourceLocation;
 use crate::internal::test_outcome::TestAssertionFailure;
-// use crate::matchers::__internal_unstable_do_not_depend_on_these::ConjunctionMatcher;
+use crate::matchers::__internal_unstable_do_not_depend_on_these::ConjunctionMatcher;
 // use crate::matchers::__internal_unstable_do_not_depend_on_these::DisjunctionMatcher;
 use std::fmt::Debug;
 
@@ -152,15 +152,15 @@ pub trait Matcher<ActualT: Debug + ?Sized> {
     // TODO(b/264518763): Replace the return type with impl Matcher and reduce
     // visibility of ConjunctionMatcher once impl in return position in trait
     // methods is stable.
-    // fn and<Right: Matcher<Self::ActualT>>(
-    //     self,
-    //     right: Right,
-    // ) -> ConjunctionMatcher<Self, Right>
-    // where
-    //     Self: Sized,
-    // {
-    //     ConjunctionMatcher::new(self, right)
-    // }
+    fn and<Right: Matcher<ActualT>>(
+        self,
+        right: Right,
+    ) -> ConjunctionMatcher<Self, Right>
+    where
+        Self: Sized,
+    {
+        ConjunctionMatcher::new(self, right)
+    }
 
     /// Constructs a matcher that matches when at least one of `self` or `right`
     /// matches the input.

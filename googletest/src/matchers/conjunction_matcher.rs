@@ -33,20 +33,21 @@ impl<M1, M2> ConjunctionMatcher<M1, M2> {
     }
 }
 
-impl<M1: Matcher, M2: Matcher<ActualT = M1::ActualT>> Matcher for ConjunctionMatcher<M1, M2>
-where
-    M1::ActualT: Debug,
-{
-    type ActualT = M1::ActualT;
-
-    fn matches(&self, actual: &M1::ActualT) -> MatcherResult {
+impl<T: Debug + ?Sized, M1: Matcher<T>, M2: Matcher<T>> Matcher<T> for ConjunctionMatcher<M1, M2> {
+    fn matches<'a>(&self, actual: &'a T) -> MatcherResult
+    where
+        T: 'a,
+    {
         match (self.m1.matches(actual), self.m2.matches(actual)) {
             (MatcherResult::Match, MatcherResult::Match) => MatcherResult::Match,
             _ => MatcherResult::NoMatch,
         }
     }
 
-    fn explain_match(&self, actual: &M1::ActualT) -> String {
+    fn explain_match<'a>(&self, actual: &'a T) -> String
+    where
+        T: 'a,
+    {
         match (self.m1.matches(actual), self.m2.matches(actual)) {
             (MatcherResult::Match, MatcherResult::Match) => {
                 format!(
@@ -82,7 +83,6 @@ mod tests {
         verify_that!(1, anything().and(anything()))
     }
     #[cfg(do_not_compile)]
-
     #[test]
     fn and_true_false_does_not_match() -> Result<()> {
         let result = verify_that!(1, anything().and(not(anything())));
@@ -99,7 +99,6 @@ mod tests {
         )
     }
     #[cfg(do_not_compile)]
-
     #[test]
     fn and_false_true_does_not_match() -> Result<()> {
         let result = verify_that!(1, not(anything()).and(anything()));
@@ -116,7 +115,6 @@ mod tests {
         )
     }
     #[cfg(do_not_compile)]
-
     #[test]
     fn and_false_false_does_not_match() -> Result<()> {
         let result = verify_that!(1, not(anything()).and(not(anything())));

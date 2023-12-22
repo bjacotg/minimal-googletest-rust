@@ -406,12 +406,12 @@ pub mod internal {
         for<'b> &'b ContainerT: IntoIterator<Item = &'b T>,
     {
 
-        fn matches<'b>(&self, actual: &'b ContainerT) -> MatcherResult where ContainerT: 'b{
+        fn matches(&self, actual: & ContainerT) -> MatcherResult {
             let match_matrix = MatchMatrix::generate(actual, &self.elements);
             match_matrix.is_match_for(self.requirements).into()
         }
 
-        fn explain_match<'b>(&self, actual: &'b ContainerT) -> String where ContainerT: 'b{
+        fn explain_match(&self, actual: & ContainerT) -> String {
             if let Some(size_mismatch_explanation) =
                 self.requirements.explain_size_mismatch(actual, N)
             {
@@ -480,12 +480,12 @@ pub mod internal {
     where
         for<'b> &'b ContainerT: IntoIterator<Item = (&'b KeyT, &'b ValueT)>,
     {
-        fn matches<'b>(&self, actual: &'b ContainerT) -> MatcherResult where ContainerT: 'b{
+        fn matches(&self, actual: & ContainerT) -> MatcherResult {
             let match_matrix = MatchMatrix::generate_for_map(actual, &self.elements);
             match_matrix.is_match_for(self.requirements).into()
         }
 
-        fn explain_match<'b>(&self, actual: &'b ContainerT) -> String where ContainerT: 'b{
+        fn explain_match(&self, actual: & ContainerT) -> String {
             if let Some(size_mismatch_explanation) =
                 self.requirements.explain_size_mismatch(actual, N)
             {

@@ -37,7 +37,7 @@ struct Anything();
 
 impl<T: Debug + ?Sized> Matcher<T> for Anything {
 
-    fn matches<'a>(&self, _: &'a T) -> MatcherResult where T: 'a {
+    fn matches(&self, _: & T) -> MatcherResult  {
         MatcherResult::Match
     }
 

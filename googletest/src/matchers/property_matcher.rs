@@ -162,9 +162,7 @@ pub mod internal {
         ExtractorT: Fn(&OuterT) -> InnerT,
         MatcherT: Matcher<InnerT>,
     {
-        fn matches<'a>(&self, actual: &'a OuterT) -> MatcherResult
-        where
-            OuterT: 'a,
+        fn matches(&self, actual: & OuterT) -> MatcherResult
         {
             self.inner.matches(&(self.extractor)(actual))
         }
@@ -177,9 +175,7 @@ pub mod internal {
             )
         }
 
-        fn explain_match<'a>(&self, actual: &'a OuterT) -> String
-        where
-            OuterT: 'a,
+        fn explain_match(&self, actual: & OuterT) -> String
         {
             let actual_inner = (self.extractor)(actual);
             format!(
@@ -215,9 +211,7 @@ pub mod internal {
     impl<InnerT: Debug + ?Sized, OuterT: Debug, MatcherT: Matcher<InnerT>> Matcher<OuterT>
         for PropertyRefMatcher<InnerT, OuterT, MatcherT>
     {
-        fn matches<'a>(&self, actual: &'a OuterT) -> MatcherResult
-        where
-            OuterT: 'a,
+        fn matches(&self, actual: & OuterT) -> MatcherResult
         {
             self.inner.matches((self.extractor)(actual))
         }
@@ -230,9 +224,7 @@ pub mod internal {
             )
         }
 
-        fn explain_match<'a>(&self, actual: &'a OuterT) -> String
-        where
-            OuterT: 'a,
+        fn explain_match(&self, actual: & OuterT) -> String
         {
             let actual_inner = (self.extractor)(actual);
             format!(

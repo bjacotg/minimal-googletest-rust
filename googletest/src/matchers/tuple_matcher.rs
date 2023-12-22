@@ -42,7 +42,7 @@ pub mod internal {
     // The only actual value which can be supplied is (), which must match.
     impl Matcher< ()> for () {
 
-        fn matches<'a>(&self, _: &'a ()) -> MatcherResult where () : 'a {
+        fn matches(&self, _: & ()) -> MatcherResult  {
             MatcherResult::Match
         }
 
@@ -64,7 +64,7 @@ pub mod internal {
                 Matcher<($($field_type,)*)> for ($($matcher_type,)*)
             {
 
-                fn matches<'a>(&self, actual: &'a ($($field_type,)*)) -> MatcherResult where ($($field_type,)*) : 'a {
+                fn matches(&self, actual: & ($($field_type,)*)) -> MatcherResult  {
                     $(match self.$field_number.matches(&actual.$field_number) {
                         MatcherResult::Match => {},
                         MatcherResult::NoMatch => {
@@ -74,7 +74,7 @@ pub mod internal {
                     MatcherResult::Match
                 }
 
-                fn explain_match<'a>(&self, actual: &'a ($($field_type,)*)) -> String where ($($field_type,)*): 'a {
+                fn explain_match(&self, actual: & ($($field_type,)*)) -> String {
                     let mut explanation = format!("which {}", self.describe(self.matches(actual)));
                     $(match self.$field_number.matches(&actual.$field_number) {
                         MatcherResult::Match => {},

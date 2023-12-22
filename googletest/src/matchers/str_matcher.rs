@@ -298,7 +298,7 @@ where
     ActualT: AsRef<str> + Debug + ?Sized,
 {
 
-    fn matches<'a>(&self, actual: &'a ActualT) -> MatcherResult where ActualT: 'a {
+    fn matches(&self, actual: & ActualT) -> MatcherResult  {
         self.configuration.do_strings_match(self.expected.deref(), actual.as_ref()).into()
     }
 
@@ -306,7 +306,7 @@ where
         self.configuration.describe(matcher_result, self.expected.deref())
     }
 
-    fn explain_match<'a>(&self, actual: &'a ActualT) -> String where ActualT: 'a {
+    fn explain_match(&self, actual: & ActualT) -> String  {
         self.configuration.explain_match(self.expected.deref(), actual.as_ref())
     }
 }

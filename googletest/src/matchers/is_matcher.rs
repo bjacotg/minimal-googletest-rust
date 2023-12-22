@@ -39,7 +39,7 @@ impl<'a, ActualT: Debug, InnerMatcherT: Matcher<ActualT>> Matcher<ActualT>
     for IsMatcher<'a, ActualT, InnerMatcherT>
 {
 
-    fn matches<'b>(&self, actual: &'b ActualT) -> MatcherResult where ActualT: 'b{
+    fn matches(&self, actual: & ActualT) -> MatcherResult {
         self.inner.matches(actual)
     }
 
@@ -58,7 +58,7 @@ impl<'a, ActualT: Debug, InnerMatcherT: Matcher<ActualT>> Matcher<ActualT>
         }
     }
 
-fn explain_match<'b>(&self, actual: &'b ActualT) -> String where ActualT: 'b {
+fn explain_match(&self, actual: & ActualT) -> String  {
         self.inner.explain_match(actual)
     }
 }

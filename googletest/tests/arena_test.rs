@@ -25,9 +25,7 @@ impl<'a, Inner> Matcher<ArenaHolder<'a, Strukt>> for GetAFieldMatcher<Inner>
 where
     for<'b> Inner: Matcher<ArenaHolder<'b, i32>>,
 {
-    fn matches<'b>(&self, actual: &'b ArenaHolder<'a, Strukt>) -> MatcherResult
-    where
-        ArenaHolder<'a, Strukt>: 'b,
+    fn matches(&self, actual: & ArenaHolder<'a, Strukt>) -> MatcherResult
     {
         self.inner.matches(&actual.get_a_field())
     }
@@ -44,9 +42,7 @@ struct HoldsMatcher<ExpectedT> {
 impl<'a, ActualT: std::fmt::Debug, ExpectedT: PartialEq<ActualT>> Matcher<ArenaHolder<'a, ActualT>>
     for HoldsMatcher<ExpectedT>
 {
-    fn matches<'b>(&self, actual: &'b ArenaHolder<'a, ActualT>) -> MatcherResult
-    where
-        ArenaHolder<'a, ActualT>: 'b,
+    fn matches(&self, actual: & ArenaHolder<'a, ActualT>) -> MatcherResult
     {
         (&self.expected == actual.value).into()
     }

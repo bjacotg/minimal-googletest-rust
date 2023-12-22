@@ -138,7 +138,7 @@ where
         self.expected.into_iter().filter(|&i| !actual.into_iter().any(|j| j == i)).collect()
     }
 
-    fn get_unexpected_items<'a>(&self, actual: &'a ActualContainerT) -> Vec<&'a ActualElementT> {
+    fn get_unexpected_items<'a>(&self, actual: & ActualContainerT) -> Vec<&'a ActualElementT> {
         actual.into_iter().filter(|&i| !self.expected.into_iter().any(|j| i == j)).collect()
     }
 }

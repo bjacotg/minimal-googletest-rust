@@ -126,7 +126,7 @@ where
     for<'a> P: Fn(&'a T) -> bool,
 {
 
-    fn matches<'a>(&self, actual: &'a T) -> MatcherResult where T: 'a{
+    fn matches(&self, actual: & T) -> MatcherResult {
         (self.predicate)(actual).into()
     }
 
@@ -144,7 +144,7 @@ where
     for<'a> P: Fn(&'a T) -> bool,
 {
 
-    fn matches<'a>(&self, actual: &'a T) -> MatcherResult where T: 'a{
+    fn matches(&self, actual: & T) -> MatcherResult {
         (self.predicate)(actual).into()
     }
 

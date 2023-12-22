@@ -100,7 +100,7 @@ where
 {
     type ActualT = ActualT;
 
-    fn matches(&self, actual: &ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
         for actual_item in actual {
             if self.expected_is_missing(actual_item) {
                 return MatcherResult::NoMatch;

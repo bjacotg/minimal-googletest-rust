@@ -39,7 +39,7 @@ where
 {
     type ActualT = M1::ActualT;
 
-    fn matches(&self, actual: &M1::ActualT) -> MatcherResult {
+    fn matches<'a>(&self, actual: &'a M1::ActualT) -> MatcherResult where M1::ActualT: 'a{
         match (self.m1.matches(actual), self.m2.matches(actual)) {
             (MatcherResult::Match, MatcherResult::Match) => MatcherResult::Match,
             _ => MatcherResult::NoMatch,

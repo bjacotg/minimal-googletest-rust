@@ -88,7 +88,7 @@ where
 {
     type ActualT = ContainerT;
 
-    fn matches(&self, actual: &Self::ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
         if let Some(count) = &self.count {
             count.matches(&self.count_matches(actual))
         } else {

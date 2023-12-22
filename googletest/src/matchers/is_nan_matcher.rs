@@ -26,7 +26,7 @@ struct IsNanMatcher<T>(PhantomData<T>);
 impl<T: Float + Debug> Matcher for IsNanMatcher<T> {
     type ActualT = T;
 
-    fn matches(&self, actual: &T) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
         actual.is_nan().into()
     }
 

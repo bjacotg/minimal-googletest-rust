@@ -90,7 +90,7 @@ pub mod internal {
     impl<'a, T: Debug + ?Sized, const N: usize> Matcher for AllMatcher<'a, T, N> {
         type ActualT = T;
 
-        fn matches(&self, actual: &Self::ActualT) -> MatcherResult {
+        fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
             for component in &self.components {
                 match component.matches(actual) {
                     MatcherResult::NoMatch => {

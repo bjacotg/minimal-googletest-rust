@@ -90,7 +90,7 @@ where
 {
     type ActualT = ActualT;
 
-    fn matches(&self, actual: &Self::ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
         self.regex.is_match(actual.as_ref()).into()
     }
 

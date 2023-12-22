@@ -38,7 +38,7 @@ struct Anything<T: ?Sized>(PhantomData<T>);
 impl<T: Debug + ?Sized> Matcher for Anything<T> {
     type ActualT = T;
 
-    fn matches(&self, _: &T) -> MatcherResult {
+    fn matches<'a>(&self, _: &'a T) -> MatcherResult where T: 'a {
         MatcherResult::Match
     }
 

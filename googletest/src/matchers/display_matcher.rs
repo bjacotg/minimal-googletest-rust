@@ -38,7 +38,7 @@ impl<T: Debug + Display, InnerMatcher: Matcher<ActualT = String>> Matcher
 {
     type ActualT = T;
 
-    fn matches(&self, actual: &T) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
         self.inner.matches(&format!("{actual}"))
     }
 

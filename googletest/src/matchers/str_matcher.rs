@@ -299,7 +299,7 @@ where
 {
     type ActualT = ActualT;
 
-    fn matches(&self, actual: &ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
         self.configuration.do_strings_match(self.expected.deref(), actual.as_ref()).into()
     }
 

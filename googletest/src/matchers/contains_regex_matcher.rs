@@ -73,7 +73,7 @@ pub struct ContainsRegexMatcher<ActualT: ?Sized> {
 impl<ActualT: AsRef<str> + Debug + ?Sized> Matcher for ContainsRegexMatcher<ActualT> {
     type ActualT = ActualT;
 
-    fn matches(&self, actual: &ActualT) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
         self.regex.is_match(actual.as_ref()).into()
     }
 

@@ -31,7 +31,9 @@ pub trait Matcher {
     /// matching condition is based on data stored in the matcher. For example,
     /// `eq` matches when its stored expected value is equal (in the sense of
     /// the `==` operator) to the value `actual`.
-    fn matches(&self, actual: &Self::ActualT) -> MatcherResult;
+    fn matches<'a>(&self, actual: &'a Self::ActualT) -> MatcherResult
+    where
+        Self::ActualT: 'a;
 
     /// Returns a description of `self` or a negative description if
     /// `matcher_result` is `DoesNotMatch`.
@@ -184,7 +186,7 @@ pub trait Matcher {
     /// ```
     // TODO(b/264518763): Replace the return type with impl Matcher and reduce
     // visibility of DisjunctionMatcher once impl in return position in trait
-    // methods is stable.    
+    // methods is stable.
     #[cfg(do_not_compile)]
 
     fn or<Right: Matcher<ActualT = Self::ActualT>>(

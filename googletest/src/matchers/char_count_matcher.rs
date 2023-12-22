@@ -67,7 +67,7 @@ struct CharLenMatcher<T: ?Sized, E> {
 impl<T: Debug + ?Sized + AsRef<str>, E: Matcher<ActualT = usize>> Matcher for CharLenMatcher<T, E> {
     type ActualT = T;
 
-    fn matches(&self, actual: &T) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
         self.expected.matches(&actual.as_ref().chars().count())
     }
 

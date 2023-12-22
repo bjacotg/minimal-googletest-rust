@@ -62,7 +62,7 @@ where
 {
     type ActualT = T;
 
-    fn matches(&self, actual: &T) -> MatcherResult {
+    fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
         actual.into_iter().next().is_none().into()
     }
 

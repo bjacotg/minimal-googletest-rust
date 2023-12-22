@@ -92,7 +92,7 @@ pub mod internal {
     impl<'a, T: Debug + ?Sized, const N: usize> Matcher for AnyMatcher<'a, T, N> {
         type ActualT = T;
 
-        fn matches(&self, actual: &Self::ActualT) -> MatcherResult {
+        fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
             MatcherResult::from(self.components.iter().any(|c| c.matches(actual).is_match()))
         }
 

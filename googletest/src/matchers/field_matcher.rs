@@ -168,7 +168,7 @@ pub mod internal {
     {
         type ActualT = OuterT;
 
-        fn matches(&self, actual: &OuterT) -> MatcherResult {
+        fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
             if let Some(value) = (self.field_accessor)(actual) {
                 self.inner.matches(value)
             } else {

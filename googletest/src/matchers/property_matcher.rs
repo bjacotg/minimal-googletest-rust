@@ -163,7 +163,7 @@ pub mod internal {
     {
         type ActualT = OuterT;
 
-        fn matches(&self, actual: &OuterT) -> MatcherResult {
+        fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
             self.inner.matches(&(self.extractor)(actual))
         }
 
@@ -212,7 +212,7 @@ pub mod internal {
     {
         type ActualT = OuterT;
 
-        fn matches(&self, actual: &OuterT) -> MatcherResult {
+        fn matches<'b>(&self, actual: &'b Self::ActualT) -> MatcherResult where Self::ActualT: 'b {
             self.inner.matches((self.extractor)(actual))
         }
 

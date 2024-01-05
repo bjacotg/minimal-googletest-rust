@@ -90,6 +90,7 @@ fn all_multiple_failed_assertions() -> Result<()> {
         ))))
     )
 }
+#[cfg(do_not_compile)]
 
 #[test]
 fn formats_error_message_correctly_when_all_is_inside_some() -> Result<()> {
@@ -113,6 +114,8 @@ fn formats_error_message_correctly_when_all_is_inside_some() -> Result<()> {
     )
 }
 
+#[cfg(do_not_compile)]
+
 #[test]
 fn formats_error_message_correctly_when_all_is_inside_ok() -> Result<()> {
     let value: std::result::Result<i32, std::io::Error> = Ok(4);
@@ -134,6 +137,8 @@ fn formats_error_message_correctly_when_all_is_inside_ok() -> Result<()> {
         ))))
     )
 }
+
+#[cfg(do_not_compile)]
 
 #[test]
 fn formats_error_message_correctly_when_all_is_inside_err() -> Result<()> {

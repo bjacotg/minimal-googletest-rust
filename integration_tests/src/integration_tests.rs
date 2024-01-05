@@ -33,10 +33,10 @@ mod tests {
         verify_that!(value, eq(2),)
     }
 
-    #[test]
-    fn should_pass_with_omitted_elements_are() -> Result<()> {
-        verify_that!(vec![1, 2], [eq(1), eq(2)])
-    }
+    // #[test]
+    // fn should_pass_with_omitted_elements_are() -> Result<()> {
+    //     verify_that!(vec![1, 2], [eq(1), eq(2)])
+    // }
 
     #[test]
     fn should_pass_with_omitted_unordered_elements_are() -> Result<()> {

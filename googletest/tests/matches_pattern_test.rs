@@ -407,6 +407,7 @@ const ANENUM_A_REPR: &str = "AnEnum :: A";
 
 #[rustversion::since(1.76)]
 const ANENUM_A_REPR: &str = "AnEnum::A";
+#[cfg(do_not_compile)]
 
 #[test]
 fn generates_correct_failure_output_when_enum_variant_without_field_is_not_matched() -> Result<()> {

@@ -12,14 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::description::Description;
 use crate::matcher::{Matcher, MatcherResult};
-use crate::matcher_support::description::Description;
 use std::{fmt::Debug, marker::PhantomData};
 
 /// Matches a container all of whose elements are matched by the matcher
 /// `inner`.
 ///
-/// `T` can be any container such that `&T` implements `IntoIterator`.
+/// `T` can be any container such that `&T` implements `IntoIterator`. This
+/// includes `Vec`, arrays, and (dereferenced) slices.
 ///
 /// ```
 /// # use googletest::prelude::*;
@@ -27,6 +28,10 @@ use std::{fmt::Debug, marker::PhantomData};
 /// # fn should_pass_1() -> Result<()> {
 /// let value = vec![1, 2, 3];
 /// verify_that!(value, each(gt(0)))?;  // Passes
+/// let array_value = [1, 2, 3];
+/// verify_that!(array_value, each(gt(0)))?;  // Passes
+/// let slice_value = &[1, 2, 3];
+/// verify_that!(*slice_value, each(gt(0)))?;  // Passes
 /// #     Ok(())
 /// # }
 /// # fn should_fail() -> Result<()> {
@@ -87,7 +92,7 @@ where
         MatcherResult::Match
     }
 
-    fn explain_match(&self, actual: &ActualT) -> String {
+    fn explain_match(&self, actual: &ActualT) -> Description {
         let mut non_matching_elements = Vec::new();
         for (index, element) in actual.into_iter().enumerate() {
             if self.inner.matches(element).is_no_match() {
@@ -95,11 +100,12 @@ where
             }
         }
         if non_matching_elements.is_empty() {
-            return format!("whose each element {}", self.inner.describe(MatcherResult::Match));
+            return format!("whose each element {}", self.inner.describe(MatcherResult::Match))
+                .into();
         }
         if non_matching_elements.len() == 1 {
             let (idx, element, explanation) = non_matching_elements.remove(0);
-            return format!("whose element #{idx} is {element:?}, {explanation}");
+            return format!("whose element #{idx} is {element:?}, {explanation}").into();
         }
 
         let failed_indexes = non_matching_elements
@@ -112,16 +118,18 @@ where
             .map(|&(_, element, ref explanation)| format!("{element:?}, {explanation}"))
             .collect::<Description>()
             .indent();
-        format!("whose elements {failed_indexes} don't match\n{element_explanations}")
+        format!("whose elements {failed_indexes} don't match\n{element_explanations}").into()
     }
 
-    fn describe(&self, matcher_result: MatcherResult) -> String {
+    fn describe(&self, matcher_result: MatcherResult) -> Description {
         match matcher_result {
             MatcherResult::Match => {
                 format!("only contains elements that {}", self.inner.describe(MatcherResult::Match))
+                    .into()
             }
             MatcherResult::NoMatch => {
                 format!("contains no element that {}", self.inner.describe(MatcherResult::Match))
+                    .into()
             }
         }
     }
@@ -220,8 +228,8 @@ mod tests {
                 Expected: only contains elements that is greater than 1
                 Actual: [0, 1, 3],
                   whose elements #0, #1 don't match
-                  0, which is less than or equal to 1
-                  1, which is less than or equal to 1"
+                    0, which is less than or equal to 1
+                    1, which is less than or equal to 1"
             ))))
         )
     }
@@ -233,7 +241,6 @@ mod tests {
             result,
             err(displays_as(contains_substring(indoc!(
                 "
-                Value of: vec![vec! [1, 2], vec! [1]]
                 Expected: only contains elements that only contains elements that is equal to 1
                 Actual: [[1, 2], [1]],
                   whose element #0 is [1, 2], whose element #1 is 2, which isn't equal to 1"

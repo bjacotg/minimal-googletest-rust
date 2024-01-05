@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::matcher::{Matcher, MatcherResult};
+use crate::{
+    description::Description,
+    matcher::{Matcher, MatcherResult},
+};
 use std::{fmt::Debug, marker::PhantomData};
 
 /// Matches a container all of whose items are in the given container
@@ -22,7 +25,8 @@ use std::{fmt::Debug, marker::PhantomData};
 /// comparison.
 ///
 /// `ActualT` and `ExpectedT` can each be any container a reference to which
-/// implements `IntoIterator`. They need not be the same container type.
+/// implements `IntoIterator`. For instance, `T` can be a common container like
+/// `Vec` or arrays. They need not be the same container type.
 ///
 /// ```
 /// # use googletest::prelude::*;
@@ -30,6 +34,8 @@ use std::{fmt::Debug, marker::PhantomData};
 /// # fn should_pass_1() -> Result<()> {
 /// let value = vec![1, 2, 3];
 /// verify_that!(value, subset_of([1, 2, 3, 4]))?;  // Passes
+/// let array_value = [1, 2, 3];
+/// verify_that!(array_value, subset_of([1, 2, 3, 4]))?;  // Passes
 /// #     Ok(())
 /// # }
 /// # fn should_fail() -> Result<()> {
@@ -109,7 +115,7 @@ where
         MatcherResult::Match
     }
 
-    fn explain_match(&self, actual: &ActualT) -> String {
+    fn explain_match(&self, actual: &ActualT) -> Description {
         let unexpected_elements = actual
             .into_iter()
             .enumerate()
@@ -118,16 +124,16 @@ where
             .collect::<Vec<_>>();
 
         match unexpected_elements.len() {
-            0 => "which no element is unexpected".to_string(),
-            1 => format!("whose element {} is unexpected", &unexpected_elements[0]),
-            _ => format!("whose elements {} are unexpected", unexpected_elements.join(", ")),
+            0 => "which no element is unexpected".into(),
+            1 => format!("whose element {} is unexpected", &unexpected_elements[0]).into(),
+            _ => format!("whose elements {} are unexpected", unexpected_elements.join(", ")).into(),
         }
     }
 
-    fn describe(&self, matcher_result: MatcherResult) -> String {
+    fn describe(&self, matcher_result: MatcherResult) -> Description {
         match matcher_result {
-            MatcherResult::Match => format!("is a subset of {:#?}", self.superset),
-            MatcherResult::NoMatch => format!("isn't a subset of {:#?}", self.superset),
+            MatcherResult::Match => format!("is a subset of {:#?}", self.superset).into(),
+            MatcherResult::NoMatch => format!("isn't a subset of {:#?}", self.superset).into(),
         }
     }
 }

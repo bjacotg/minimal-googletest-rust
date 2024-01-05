@@ -28,6 +28,12 @@ mod tests {
     #[cfg(do_not_compile)]
 
     #[test]
+    fn verify_that_supports_trailing_comma() -> Result<()> {
+        let value = 2;
+        verify_that!(value, eq(2),)
+    }
+
+    #[test]
     fn should_pass_with_omitted_elements_are() -> Result<()> {
         verify_that!(vec![1, 2], [eq(1), eq(2)])
     }
@@ -50,10 +56,21 @@ mod tests {
     }
 
     #[test]
-    fn should_pass_with_assert_that() -> Result<()> {
+    fn should_pass_with_assert_that() {
         let value = 2;
         assert_that!(value, eq(2));
-        Ok(())
+    }
+
+    #[test]
+    fn assert_that_supports_trailing_comma() {
+        let value = 2;
+        assert_that!(value, eq(2),);
+    }
+
+    #[test]
+    fn assert_that_with_custom_failure_message_supports_trailing_comma() {
+        let value = 2;
+        assert_that!(value, eq(2), "A custom error message",);
     }
 
     #[googletest::test]
@@ -67,6 +84,18 @@ mod tests {
     fn should_pass_with_expect_that_returning_unit() {
         let value = 2;
         expect_that!(value, eq(2));
+    }
+
+    #[googletest::test]
+    fn expect_that_supports_trailing_comma() {
+        let value = 2;
+        expect_that!(value, eq(2),);
+    }
+
+    #[googletest::test]
+    fn expect_that_with_custom_failure_message_supports_trailing_comma() {
+        let value = 2;
+        expect_that!(value, eq(2), "A custom error message",);
     }
 
     #[test]
@@ -176,7 +205,8 @@ mod tests {
                 Value of: Some(1)
                 Expected: has a value which is equal to 2
                 Actual: Some(1),
-                  which has a value which isn't equal to 2
+                  which has a value
+                    which isn't equal to 2
             "})
         );
         expect_that!(
@@ -185,7 +215,8 @@ mod tests {
                 Value of: value
                 Expected: is a success containing a value, which is equal to 2
                 Actual: Ok(1),
-                  which is a success which isn't equal to 2
+                  which is a success
+                    which isn't equal to 2
             "})
         );
         expect_that!(
@@ -194,7 +225,8 @@ mod tests {
                 Value of: value
                 Expected: is an error which is equal to 2
                 Actual: Err(1),
-                  which is an error which isn't equal to 2
+                  which is an error
+                    which isn't equal to 2
             "})
         );
         Ok(())
@@ -297,7 +329,31 @@ mod tests {
 
         verify_that!(output, contains_substring("A custom error message"))?;
         verify_that!(output, contains_substring("A custom error message in a String"))?;
-        verify_that!(output, contains_substring("A custom error message from a closure"))
+        verify_that!(output, contains_substring("A custom error message from a closure"))?;
+        verify_that!(
+            output,
+            contains_substring("assert_that: A custom error message for value 2")
+        )?;
+        verify_that!(
+            output,
+            contains_substring("assert_that: A custom error message for incremented value 3")
+        )?;
+        verify_that!(
+            output,
+            contains_substring("assert_that: A custom error message for twice incremented value 4")
+        )?;
+        verify_that!(
+            output,
+            contains_substring("expect_that: A custom error message for value 2")
+        )?;
+        verify_that!(
+            output,
+            contains_substring("expect_that: A custom error message for incremented value 3")
+        )?;
+        verify_that!(
+            output,
+            contains_substring("expect_that: A custom error message for twice incremented value 4")
+        )
     }
 
     #[test]
@@ -456,6 +512,7 @@ mod tests {
     }
 
     #[test]
+    #[rustversion::before(1.76)]
     fn verify_pred_should_show_correct_qualified_function_name_in_test_failure_output() -> Result<()>
     {
         let output = run_external_process_in_tests_directory(
@@ -466,6 +523,24 @@ mod tests {
             output,
             contains_substring(indoc! {"
                 a_submodule :: A_STRUCT_IN_SUBMODULE.eq_predicate_as_method(a, b) was false with
+                  a = 1,
+                  b = 2
+                "})
+        )
+    }
+
+    #[test]
+    #[rustversion::since(1.76)]
+    fn verify_pred_should_show_correct_qualified_function_name_in_test_failure_output() -> Result<()>
+    {
+        let output = run_external_process_in_tests_directory(
+            "verify_predicate_with_failure_as_method_in_submodule",
+        )?;
+
+        verify_that!(
+            output,
+            contains_substring(indoc! {"
+                a_submodule::A_STRUCT_IN_SUBMODULE.eq_predicate_as_method(a, b) was false with
                   a = 1,
                   b = 2
                 "})

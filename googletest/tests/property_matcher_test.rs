@@ -122,7 +122,7 @@ fn does_not_match_struct_with_non_matching_property() -> Result<()> {
 fn describes_itself_in_matching_case() -> Result<()> {
     verify_that!(
         property!(SomeStruct.get_property(), eq(1)).describe(MatcherResult::Match),
-        eq("has property `get_property()`, which is equal to 1")
+        displays_as(eq("has property `get_property()`, which is equal to 1"))
     )
 }
 
@@ -130,7 +130,7 @@ fn describes_itself_in_matching_case() -> Result<()> {
 fn describes_itself_in_not_matching_case() -> Result<()> {
     verify_that!(
         property!(SomeStruct.get_property(), eq(1)).describe(MatcherResult::NoMatch),
-        eq("has property `get_property()`, which isn't equal to 1")
+        displays_as(eq("has property `get_property()`, which isn't equal to 1"))
     )
 }
 #[cfg(do_not_compile)]
@@ -157,7 +157,7 @@ fn explains_mismatch_referencing_explanation_of_inner_matcher() -> Result<()> {
 fn describes_itself_in_matching_case_for_ref() -> Result<()> {
     verify_that!(
         property!(*SomeStruct.get_property_ref(), eq(1)).describe(MatcherResult::Match),
-        eq("has property `get_property_ref()`, which is equal to 1")
+        displays_as(eq("has property `get_property_ref()`, which is equal to 1"))
     )
 }
 
@@ -165,7 +165,7 @@ fn describes_itself_in_matching_case_for_ref() -> Result<()> {
 fn describes_itself_in_not_matching_case_for_ref() -> Result<()> {
     verify_that!(
         property!(*SomeStruct.get_property_ref(), eq(1)).describe(MatcherResult::NoMatch),
-        eq("has property `get_property_ref()`, which isn't equal to 1")
+        displays_as(eq("has property `get_property_ref()`, which isn't equal to 1"))
     )
 }
 #[cfg(do_not_compile)]

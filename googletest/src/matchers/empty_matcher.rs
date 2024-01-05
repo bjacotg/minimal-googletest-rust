@@ -12,12 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::matcher::{Matcher, MatcherResult};
+use crate::{
+    description::Description,
+    matcher::{Matcher, MatcherResult},
+};
 use std::{fmt::Debug, marker::PhantomData};
 
 /// Matches an empty container.
 ///
-/// `T` can be any container such that `&T` implements `IntoIterator`.
+/// `T` can be any container such that `&T` implements `IntoIterator`. For
+/// instance, `T` can be a common container like `Vec` and
+/// [`HashSet`][std::collections::HashSet].
 ///
 /// ```
 /// # use googletest::prelude::*;
@@ -66,8 +71,8 @@ where
         actual.into_iter().next().is_none().into()
     }
 
-    fn describe(&self, matcher_result: MatcherResult) -> String {
-        if matcher_result.into() { "is empty" } else { "isn't empty" }.to_string()
+    fn describe(&self, matcher_result: MatcherResult) -> Description {
+        if matcher_result.into() { "is empty" } else { "isn't empty" }.into()
     }
 }
 

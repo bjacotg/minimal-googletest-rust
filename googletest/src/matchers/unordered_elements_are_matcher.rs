@@ -43,8 +43,9 @@
 /// # should_fail_3().unwrap_err();
 /// ```
 ///
-/// The actual value must be a container implementing [`IntoIterator`]. This
-/// includes standard containers, slices (when dereferenced) and arrays.
+/// The actual value must be a container such as a `Vec`, an array, or a
+/// dereferenced slice. More precisely, a shared borrow of the actual value must
+/// implement [`IntoIterator`].
 ///
 /// This can also match against [`HashMap`][std::collections::HashMap] and
 /// similar collections. The arguments are a sequence of pairs of matchers
@@ -181,8 +182,9 @@ macro_rules! __unordered_elements_are {
 /// # should_fail_3().unwrap_err();
 /// ```
 ///
-/// The actual value must be a container implementing [`IntoIterator`]. This
-/// includes standard containers, slices (when dereferenced) and arrays.
+/// The actual value must be a container such as a `Vec`, an array, or a
+/// dereferenced slice. More precisely, a shared borrow of the actual value must
+/// implement [`IntoIterator`].
 ///
 /// This can also match against [`HashMap`][std::collections::HashMap] and
 /// similar collections. The arguments are a sequence of pairs of matchers
@@ -287,8 +289,9 @@ macro_rules! __contains_each {
 /// # should_fail_3().unwrap_err();
 /// ```
 ///
-/// The actual value must be a container implementing [`IntoIterator`]. This
-/// includes standard containers, slices (when dereferenced) and arrays.
+/// The actual value must be a container such as a `Vec`, an array, or a
+/// dereferenced slice. More precisely, a shared borrow of the actual value must
+/// implement [`IntoIterator`].
 ///
 /// This can also match against [`HashMap`][std::collections::HashMap] and
 /// similar collections. The arguments are a sequence of pairs of matchers
@@ -362,9 +365,9 @@ macro_rules! __is_contained_in {
 /// **For internal use only. API stablility is not guaranteed!**
 #[doc(hidden)]
 pub mod internal {
+    use crate::description::Description;
     use crate::matcher::{Matcher, MatcherResult};
     use crate::matcher_support::count_elements::count_elements;
-    use crate::matcher_support::description::Description;
     use std::collections::HashSet;
     use std::fmt::{Debug, Display};
     use std::marker::PhantomData;
@@ -411,7 +414,7 @@ pub mod internal {
             match_matrix.is_match_for(self.requirements).into()
         }
 
-        fn explain_match(&self, actual: & ContainerT) -> String {
+        fn explain_match(&self, actual: & ContainerT) -> Description {
             if let Some(size_mismatch_explanation) =
                 self.requirements.explain_size_mismatch(actual, N)
             {
@@ -428,10 +431,10 @@ pub mod internal {
             let best_match = match_matrix.find_best_match();
             best_match
                 .get_explanation(actual, &self.elements, self.requirements)
-                .unwrap_or("whose elements all match".to_string())
+                .unwrap_or("whose elements all match".into())
         }
 
-        fn describe(&self, matcher_result: MatcherResult) -> String {
+        fn describe(&self, matcher_result: MatcherResult) -> Description {
             format!(
                 "{} elements matching in any order:\n{}",
                 if matcher_result.into() { "contains" } else { "doesn't contain" },
@@ -442,6 +445,7 @@ pub mod internal {
                     .enumerate()
                     .indent()
             )
+            .into()
         }
     }
 
@@ -485,7 +489,7 @@ pub mod internal {
             match_matrix.is_match_for(self.requirements).into()
         }
 
-        fn explain_match(&self, actual: & ContainerT) -> String {
+        fn explain_match(&self, actual: & ContainerT) -> Description {
             if let Some(size_mismatch_explanation) =
                 self.requirements.explain_size_mismatch(actual, N)
             {
@@ -503,10 +507,10 @@ pub mod internal {
 
             best_match
                 .get_explanation_for_map(actual, &self.elements, self.requirements)
-                .unwrap_or("whose elements all match".to_string())
+                .unwrap_or("whose elements all match".into())
         }
 
-        fn describe(&self, matcher_result: MatcherResult) -> String {
+        fn describe(&self, matcher_result: MatcherResult) -> Description {
             format!(
                 "{} elements matching in any order:\n{}",
                 if matcher_result.into() { "contains" } else { "doesn't contain" },
@@ -520,6 +524,7 @@ pub mod internal {
                     .collect::<Description>()
                     .indent()
             )
+            .into()
         }
     }
 
@@ -548,25 +553,25 @@ pub mod internal {
             &self,
             actual: &ContainerT,
             expected_size: usize,
-        ) -> Option<String>
+        ) -> Option<Description>
         where
             for<'b> &'b ContainerT: IntoIterator,
         {
             let actual_size = count_elements(actual);
             match self {
-                Requirements::PerfectMatch if actual_size != expected_size => {
-                    Some(format!("which has size {} (expected {})", actual_size, expected_size))
-                }
+                Requirements::PerfectMatch if actual_size != expected_size => Some(
+                    format!("which has size {} (expected {})", actual_size, expected_size).into(),
+                ),
 
-                Requirements::Superset if actual_size < expected_size => Some(format!(
-                    "which has size {} (expected at least {})",
-                    actual_size, expected_size
-                )),
+                Requirements::Superset if actual_size < expected_size => Some(
+                    format!("which has size {} (expected at least {})", actual_size, expected_size)
+                        .into(),
+                ),
 
-                Requirements::Subset if actual_size > expected_size => Some(format!(
-                    "which has size {} (expected at most {})",
-                    actual_size, expected_size
-                )),
+                Requirements::Subset if actual_size > expected_size => Some(
+                    format!("which has size {} (expected at most {})", actual_size, expected_size)
+                        .into(),
+                ),
 
                 _ => None,
             }
@@ -644,7 +649,7 @@ pub mod internal {
             }
         }
 
-        fn explain_unmatchable(&self, requirements: Requirements) -> Option<String> {
+        fn explain_unmatchable(&self, requirements: Requirements) -> Option<Description> {
             let unmatchable_elements = match requirements {
                 Requirements::PerfectMatch => self.find_unmatchable_elements(),
                 Requirements::Superset => self.find_unmatched_expected(),
@@ -851,7 +856,7 @@ pub mod internal {
                 || self.unmatchable_expected.iter().any(|b| *b)
         }
 
-        fn get_explanation(&self) -> Option<String> {
+        fn get_explanation(&self) -> Option<Description> {
             let unmatchable_actual = self.unmatchable_actual();
             let actual_idx = unmatchable_actual
                 .iter()
@@ -867,29 +872,29 @@ pub mod internal {
             match (unmatchable_actual.len(), unmatchable_expected.len()) {
                 (0, 0) => None,
                 (1, 0) => {
-                    Some(format!("whose element {actual_idx} does not match any expected elements"))
+                    Some(format!("whose element {actual_idx} does not match any expected elements").into())
                 }
                 (_, 0) => {
-                    Some(format!("whose elements {actual_idx} do not match any expected elements",))
+                    Some(format!("whose elements {actual_idx} do not match any expected elements",).into())
                 }
                 (0, 1) => Some(format!(
                     "which has no element matching the expected element {expected_idx}"
-                )),
+                ).into()),
                 (0, _) => Some(format!(
                     "which has no elements matching the expected elements {expected_idx}"
-                )),
+                ).into()),
                 (1, 1) => Some(format!(
                     "whose element {actual_idx} does not match any expected elements and no elements match the expected element {expected_idx}"
-                )),
+                ).into()),
                 (_, 1) => Some(format!(
                     "whose elements {actual_idx} do not match any expected elements and no elements match the expected element {expected_idx}"
-                )),
+                ).into()),
                 (1, _) => Some(format!(
                     "whose element {actual_idx} does not match any expected elements and no elements match the expected elements {expected_idx}"
-                )),
+                ).into()),
                 (_, _) => Some(format!(
                     "whose elements {actual_idx} do not match any expected elements and no elements match the expected elements {expected_idx}"
-                )),
+                ).into()),
             }
         }
 
@@ -956,7 +961,7 @@ pub mod internal {
             actual: &ContainerT,
             expected: &[Box<dyn Matcher<T> + 'a>; N],
             requirements: Requirements,
-        ) -> Option<String>
+        ) -> Option<Description>
         where
             for<'b> &'b ContainerT: IntoIterator<Item = &'b T>,
         {
@@ -995,7 +1000,7 @@ pub mod internal {
                 .indent();
             Some(format!(
                 "which does not have a {requirements} match with the expected elements. The best match found was:\n{best_match}"
-            ))
+            ).into())
         }
 
         fn get_explanation_for_map<'a, KeyT: Debug, ValueT: Debug, ContainerT: Debug + ?Sized>(
@@ -1003,7 +1008,7 @@ pub mod internal {
             actual: &ContainerT,
             expected: &[KeyValueMatcher<'a, KeyT, ValueT>; N],
             requirements: Requirements,
-        ) -> Option<String>
+        ) -> Option<Description>
         where
             for<'b> &'b ContainerT: IntoIterator<Item = (&'b KeyT, &'b ValueT)>,
         {
@@ -1053,7 +1058,7 @@ pub mod internal {
                 .indent();
             Some(format!(
                 "which does not have a {requirements} match with the expected elements. The best match found was:\n{best_match}"
-            ))
+            ).into())
         }
     }
 }
@@ -1081,13 +1086,13 @@ mod tests {
         ];
         verify_that!(
             Matcher::describe(&matcher, MatcherResult::Match),
-            eq(indoc!(
+            displays_as(eq(indoc!(
                 "
                 contains elements matching in any order:
                   is equal to 2 => is equal to \"Two\"
                   is equal to 1 => is equal to \"One\"
                   is equal to 3 => is equal to \"Three\""
-            ))
+            )))
         )
     }
     #[cfg(do_not_compile)]

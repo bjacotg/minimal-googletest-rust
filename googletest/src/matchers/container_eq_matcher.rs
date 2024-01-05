@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::description::Description;
 use crate::matcher::{Matcher, MatcherResult};
 use std::fmt::Debug;
 use std::marker::PhantomData;
@@ -29,9 +30,14 @@ use std::marker::PhantomData;
 ///   Unexpected: [4]
 /// ```
 ///
-/// The type of `expected` must implement `IntoIterator` with an `Item` which
-/// implements `PartialEq`. If the container type is a `Vec`, then the expected
-/// type may be a slice of the same element type. For example:
+/// The actual value must be a container such as a `Vec`, an array, or a
+/// dereferenced slice. More precisely, a shared borrow of the actual value must
+/// implement [`IntoIterator`] whose `Item` type implements
+/// [`PartialEq<ExpectedT>`], where `ExpectedT` is the element type of the
+/// expected value.
+///
+/// If the container type is a `Vec`, then the expected type may be a slice of
+/// the same element type. For example:
 ///
 /// ```
 /// # use googletest::prelude::*;
@@ -114,14 +120,14 @@ where
         (*actual == self.expected).into()
     }
 
-    fn explain_match(&self, actual: &ActualContainerT) -> String {
-        build_explanation(self.get_missing_items(actual), self.get_unexpected_items(actual))
+    fn explain_match(&self, actual: &ActualContainerT) -> Description {
+        build_explanation(self.get_missing_items(actual), self.get_unexpected_items(actual)).into()
     }
 
-    fn describe(&self, matcher_result: MatcherResult) -> String {
+    fn describe(&self, matcher_result: MatcherResult) -> Description {
         match matcher_result {
-            MatcherResult::Match => format!("is equal to {:?}", self.expected),
-            MatcherResult::NoMatch => format!("isn't equal to {:?}", self.expected),
+            MatcherResult::Match => format!("is equal to {:?}", self.expected).into(),
+            MatcherResult::NoMatch => format!("isn't equal to {:?}", self.expected).into(),
         }
     }
 }

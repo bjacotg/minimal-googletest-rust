@@ -145,11 +145,11 @@ mod tests {
 
     #[test]
     fn works_with_str_slices() -> Result<()> {
-        verify_that!("A string", starts_with("A").and(ends_with("string")))
+        verify_that!("A string", all![starts_with("A"), ends_with("string")])
     }
 
     #[test]
     fn works_with_owned_strings() -> Result<()> {
-        verify_that!("A string".to_string(), starts_with("A").and(ends_with("string")))
+        verify_that!("A string".to_string(), all![starts_with("A"), ends_with("string")])
     }
 }

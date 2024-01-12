@@ -43,19 +43,18 @@ use std::{fmt::Debug, marker::PhantomData};
 /// # should_fail_1().unwrap_err();
 /// # should_fail_2().unwrap_err();
 /// ```
-pub fn contains<T, InnerMatcherT>(inner: InnerMatcherT) -> ContainsMatcher<T, InnerMatcherT> {
-    ContainsMatcher { inner, count: None, phantom: Default::default() }
+pub fn contains<InnerMatcherT>(inner: InnerMatcherT) -> ContainsMatcher<InnerMatcherT> {
+    ContainsMatcher { inner, count: None}
 }
 
 /// A matcher which matches a container containing one or more elements a given
 /// inner [`Matcher`] matches.
-pub struct ContainsMatcher<T, InnerMatcherT> {
+pub struct ContainsMatcher<InnerMatcherT> {
     inner: InnerMatcherT,
     count: Option<Box<dyn Matcher<usize>>>,
-    phantom: PhantomData<T>,
 }
 
-impl<T, InnerMatcherT> ContainsMatcher<T, InnerMatcherT> {
+impl<InnerMatcherT> ContainsMatcher<InnerMatcherT> {
     /// Configures this instance to match containers which contain a number of
     /// matching items matched by `count`.
     ///
@@ -84,8 +83,8 @@ impl<T, InnerMatcherT> ContainsMatcher<T, InnerMatcherT> {
 //  because val is dropped before matcher but the trait bound requires that
 //  the argument to matches outlive the matcher. It works fine if one defines
 //  val before matcher.
-impl<T: Debug, InnerMatcherT: Matcher<T>, ContainerT: Debug> Matcher<ContainerT>
-    for ContainsMatcher<ContainerT, InnerMatcherT>
+impl<T: Debug, InnerMatcherT: Matcher<T>, ContainerT: Debug + ?Sized> Matcher<ContainerT>
+    for ContainsMatcher<InnerMatcherT>
 where
     for<'a> &'a ContainerT: IntoIterator<Item = &'a T>,
 {
@@ -138,8 +137,8 @@ where
     }
 }
 
-impl<ActualT, InnerMatcherT> ContainsMatcher<ActualT, InnerMatcherT> {
-    fn count_matches<T: Debug, ContainerT>(&self, actual: &ContainerT) -> usize
+impl<InnerMatcherT> ContainsMatcher<InnerMatcherT> {
+    fn count_matches<T: Debug, ContainerT: ?Sized>(&self, actual: &ContainerT) -> usize
     where
         for<'b> &'b ContainerT: IntoIterator<Item = &'b T>,
         InnerMatcherT: Matcher<T>,
@@ -198,9 +197,9 @@ mod tests {
 
     #[test]
     fn contains_does_not_match_empty_slice() -> Result<()> {
-        let matcher = contains(eq::<i32, _>(1));
-
-        let result = matcher.matches(&[]);
+        let matcher = contains(eq(1));
+        let actual: &[i32] = &[];
+        let result = matcher.matches(actual);
 
         verify_that!(result, eq(MatcherResult::NoMatch))
     }
@@ -234,20 +233,20 @@ mod tests {
 
     #[test]
     fn contains_formats_without_multiplicity_by_default() -> Result<()> {
-        let matcher: ContainsMatcher<Vec<i32>, _> = contains(eq(1));
+        let matcher = contains(eq(1));
 
         verify_that!(
-            Matcher::describe(&matcher, MatcherResult::Match),
+            Matcher::<Vec<i32>>::describe(&matcher, MatcherResult::Match),
             displays_as(eq("contains at least one element which is equal to 1"))
         )
     }
 
     #[test]
     fn contains_formats_with_multiplicity_when_specified() -> Result<()> {
-        let matcher: ContainsMatcher<Vec<i32>, _> = contains(eq(1)).times(eq(2));
+        let matcher = contains(eq(1)).times(eq(2));
 
         verify_that!(
-            Matcher::describe(&matcher, MatcherResult::Match),
+            Matcher::<Vec<i32>>::describe(&matcher, MatcherResult::Match),
             displays_as(eq("contains n elements which is equal to 1\n  where n is equal to 2"))
         )
     }
